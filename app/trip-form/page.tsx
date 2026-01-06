@@ -162,7 +162,7 @@ export default function EmployeeDashboard() {
 
     const verifyStatus = async () => {
       try {
-        const res = await fetch(`http://192.168.31.247:5000/api/check-active-trip/${savedUser.id}`);
+        const res = await fetch(`https://gk-backend-two.vercel.app/api/check-active-trip/${savedUser.id}`);
         const data = await res.json();
         
         if (data.active && data.tripId) {
@@ -353,7 +353,7 @@ export default function EmployeeDashboard() {
 
       try {
         setStatusText("Uploading..."); 
-        const res = await fetch(`http://192.168.31.247:5000${endpoint}`, {
+        const res = await fetch(`https://gk-backend-two.vercel.app${endpoint}`, {
           method: 'POST',
           body: formData
         });
