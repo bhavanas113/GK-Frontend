@@ -213,8 +213,7 @@ export default function AdminDashboard() {
             </h1>
             <div className="hidden md:block h-1 w-12 bg-[#FF5722] mt-1"></div>
           </div>
-          <nav className="hidden md:flex flex-col space-y-3">
-            <button 
+       <nav className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-3 overflow-x-auto md:overflow-visible w-full no-scrollbar pb-2 md:pb-0">            <button 
               onClick={() => setActiveTab('dashboard')}
               className={`${activeTab === 'dashboard' ? 'bg-[#FF5722] shadow-[#FF5722]/20' : 'bg-transparent'} text-white p-4 rounded-xl font-bold uppercase text-xs tracking-widest shadow-lg transition-all text-left`}>
               Dashboard
