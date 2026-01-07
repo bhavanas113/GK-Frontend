@@ -36,7 +36,7 @@ export default function AdminDashboard() {
 
   const fetchTrips = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    fetch('https://gk-backend-two.vercel.app/api/admin/trips')
+    fetch(`${API_URL}/api/admin/trips`)
       .then(res => res.json())
       .then(data => {
         if (user.role === 'employee') {
@@ -48,17 +48,17 @@ export default function AdminDashboard() {
         setLoading(false);
       })
       .catch(err => console.error("Error:", err));
-  };
+  }
 
   const fetchPartiesList = () => {
-    fetch('https://gk-backend-two.vercel.app/api/admin/parties-all')
-      .then(res => res.json())
+    fetch(`${API_URL}/api/admin/parties-all`)    
+     .then(res => res.json())
       .then(data => setParties(data))
       .catch(err => console.error("Error fetching parties:", err));
   };
 
   const fetchReminders = () => {
-    fetch('https://gk-backend-two.vercel.app/api/admin/reminders')
+   fetch(`${API_URL}/api/admin/reminders`)     
       .then(res => res.json())
       .then(data => setReminders(data))
       .catch(err => console.error("Error fetching reminders:", err));
@@ -77,8 +77,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (partyData.mobile.length === 10) {
-      fetch(`https://gk-backend-two.vercel.app/api/admin/party/${partyData.mobile}`)
-        .then(res => res.json())
+    fetch(`${API_URL}/api/admin/party/${partyData.mobile}`)  
+      .then(res => res.json())
         .then(data => {
           if (data.exists) {
             setPartyData(prev => ({
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
     if (partyData.mobile.length !== 10) return alert("Mobile must be 10 digits");
     
     try {
-        const response = await fetch('https://gk-backend-two.vercel.app/api/admin/party-details', {
+        const response = await fetch(`${API_URL}/api/admin/party-details`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(partyData),
@@ -185,7 +185,7 @@ export default function AdminDashboard() {
 
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this record?")) {
-      await fetch(`https://gk-backend-two.vercel.app/api/admin/delete-trip/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/admin/delete-trip/${id}`, { method: 'DELETE' });
       fetchTrips();
     }
   };
@@ -213,8 +213,7 @@ export default function AdminDashboard() {
             </h1>
             <div className="hidden md:block h-1 w-12 bg-[#FF5722] mt-1"></div>
           </div>
-          <nav className="hidden md:flex flex-col space-y-3">
-            <button 
+       <nav className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-3 overflow-x-auto md:overflow-visible w-full no-scrollbar pb-2 md:pb-0">            <button 
               onClick={() => setActiveTab('dashboard')}
               className={`${activeTab === 'dashboard' ? 'bg-[#FF5722] shadow-[#FF5722]/20' : 'bg-transparent'} text-white p-4 rounded-xl font-bold uppercase text-xs tracking-widest shadow-lg transition-all text-left`}>
               Dashboard
@@ -522,13 +521,12 @@ export default function AdminDashboard() {
                     <div 
                       className="relative group cursor-pointer overflow-hidden rounded-[1.5rem] border-2 border-slate-100 shadow-lg h-40"
                       onClick={() => setFullPreview({
-                        url: `https://gk-backend-two.vercel.app${selectedImg[`${type}_photo`]}`,
-                        type: type === 'loading' ? 'LOADING PHOTO' : 'UNLOADING PHOTO',
+                        url: selectedImg[`${type}_photo`],                        type: type === 'loading' ? 'LOADING PHOTO' : 'UNLOADING PHOTO',
                         time: type === 'loading' ? new Date(selectedImg.capture_time).toLocaleString() : (selectedImg.unloading_date ? new Date(selectedImg.unloading_date).toLocaleString() : 'N/A'),
                         loc: type === 'loading' ? selectedImg.location_name : (selectedImg.unloading_location || 'Address not available')
                       })}
                     >
-                      <img src={`https://gk-backend-two.vercel.app${selectedImg[`${type}_photo`]}`} className="w-full h-full object-cover" alt={type} />
+                      <img src={selectedImg[`${type}_photo`]} className="w-full h-full object-cover" alt={type} />
                     </div>
                     {/* SHOWING DATE & LOCATION DIRECTLY ON REPORT */}
                     <div className="px-1 text-center">
