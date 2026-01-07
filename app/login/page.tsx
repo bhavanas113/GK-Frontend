@@ -29,7 +29,7 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      const res = await fetch(`http://192.168.31.247:5000/api/login`, {
+      const res = await fetch(`https://gk-backend-two.vercel.app/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

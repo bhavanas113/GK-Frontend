@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import * as XLSX from 'xlsx';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://gk-backend-two.vercel.app";
 
 export default function AdminDashboard() {
   const [trips, setTrips] = useState([]);
@@ -35,7 +36,7 @@ export default function AdminDashboard() {
 
   const fetchTrips = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    fetch('http://192.168.31.247:5000/api/admin/trips')
+    fetch(`${API_URL}/api/admin/trips`)
       .then(res => res.json())
       .then(data => {
         if (user.role === 'employee') {
@@ -47,17 +48,17 @@ export default function AdminDashboard() {
         setLoading(false);
       })
       .catch(err => console.error("Error:", err));
-  };
+  }
 
   const fetchPartiesList = () => {
-    fetch('http://192.168.31.247:5000/api/admin/parties-all')
-      .then(res => res.json())
+    fetch(`${API_URL}/api/admin/parties-all`)    
+     .then(res => res.json())
       .then(data => setParties(data))
       .catch(err => console.error("Error fetching parties:", err));
   };
 
   const fetchReminders = () => {
-    fetch('http://192.168.31.247:5000/api/admin/reminders')
+   fetch(`${API_URL}/api/admin/reminders`)     
       .then(res => res.json())
       .then(data => setReminders(data))
       .catch(err => console.error("Error fetching reminders:", err));
@@ -76,8 +77,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (partyData.mobile.length === 10) {
-      fetch(`http://192.168.31.247:5000/api/admin/party/${partyData.mobile}`)
-        .then(res => res.json())
+    fetch(`${API_URL}/api/admin/party/${partyData.mobile}`)  
+      .then(res => res.json())
         .then(data => {
           if (data.exists) {
             setPartyData(prev => ({
@@ -126,7 +127,7 @@ export default function AdminDashboard() {
     if (partyData.mobile.length !== 10) return alert("Mobile must be 10 digits");
     
     try {
-        const response = await fetch('http://192.168.31.247:5000/api/admin/party-details', {
+        const response = await fetch(`${API_URL}/api/admin/party-details`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(partyData),
@@ -184,14 +185,14 @@ export default function AdminDashboard() {
 
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this record?")) {
-      await fetch(`http://192.168.31.247:5000/api/admin/delete-trip/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/admin/delete-trip/${id}`, { method: 'DELETE' });
       fetchTrips();
     }
   };
 
   const deleteParty = async (id: number) => {
     if (confirm("Are you sure you want to delete this party and all their logs?")) {
-      await fetch(`http://192.168.31.247:5000/api/admin/delete-party/${id}`, { method: 'DELETE' });
+      await fetch(`https://gk-backend-two.vercel.app/api/admin/delete-party/${id}`, { method: 'DELETE' });
       fetchPartiesList();
       fetchReminders();
     }
@@ -521,13 +522,12 @@ export default function AdminDashboard() {
                     <div 
                       className="relative group cursor-pointer overflow-hidden rounded-[1.5rem] border-2 border-slate-100 shadow-lg h-40"
                       onClick={() => setFullPreview({
-                        url: `http://192.168.31.247:5000${selectedImg[`${type}_photo`]}`,
-                        type: type === 'loading' ? 'LOADING PHOTO' : 'UNLOADING PHOTO',
+                        url: selectedImg[`${type}_photo`],                        type: type === 'loading' ? 'LOADING PHOTO' : 'UNLOADING PHOTO',
                         time: type === 'loading' ? new Date(selectedImg.capture_time).toLocaleString() : (selectedImg.unloading_date ? new Date(selectedImg.unloading_date).toLocaleString() : 'N/A'),
                         loc: type === 'loading' ? selectedImg.location_name : (selectedImg.unloading_location || 'Address not available')
                       })}
                     >
-                      <img src={`http://192.168.31.247:5000${selectedImg[`${type}_photo`]}`} className="w-full h-full object-cover" alt={type} />
+                      <img src={selectedImg[`${type}_photo`]} className="w-full h-full object-cover" alt={type} />
                     </div>
                     {/* SHOWING DATE & LOCATION DIRECTLY ON REPORT */}
                     <div className="px-1 text-center">
