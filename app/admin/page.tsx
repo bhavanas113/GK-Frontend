@@ -5,10 +5,9 @@ import * as XLSX from 'xlsx';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://gk-backend-two.vercel.app";
 
 export default function AdminDashboard() {
-  const [trips, setTrips] = useState([]);
+const [trips, setTrips] = useState<any[]>([]); 
   const [parties, setParties] = useState<any[]>([]); 
-  const [reminders, setReminders] = useState<any[]>([]); 
-  const [search, setSearch] = useState("");
+  const [reminders, setReminders] = useState<any[]>([]);  const [search, setSearch] = useState("");
   const [partySearch, setPartySearch] = useState(""); 
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
