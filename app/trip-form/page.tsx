@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import exifr from 'exifr';
+import imageCompression from 'browser-image-compression'; // Added compression library
 
 // --- TRANSLATIONS ---
 const translations = {
@@ -197,6 +198,22 @@ export default function EmployeeDashboard() {
     }
   };
 
+  // Function to compress image
+  const handleImageCompression = async (file: File) => {
+    const options = {
+      maxSizeMB: 0.8, // Max size 800KB
+      maxWidthOrHeight: 1280,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(file, options);
+      return compressedFile;
+    } catch (error) {
+      console.error("Compression error:", error);
+      return file;
+    }
+  };
+
   const stampImage = async (file: File, locationName: string): Promise<File> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -255,7 +272,7 @@ export default function EmployeeDashboard() {
         }
     }
 
-    // 2. Mobile Number Validation (NEW CHANGE)
+    // 2. Mobile Number Validation
     if (view === 'expenses') {
         const mobile = (e.currentTarget.elements.namedItem('party_number') as HTMLInputElement).value;
         const mobileRegex = /^[0-9]{10}$/;
@@ -283,15 +300,20 @@ export default function EmployeeDashboard() {
 
     const processSubmission = async () => {
       const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement;
-      const file = fileInput?.files?.[0];
+      const originalFile = fileInput?.files?.[0];
       
       let finalLat = "0";
       let finalLng = "0";
       let photoTime = new Date().toISOString(); 
       let addressLabel = "Location not detected"; 
 
-      if (file) {
+      if (originalFile) {
         try {
+          // A. COMPRESSION STEP
+          setStatusText("Optimizing Image...");
+          const file = await handleImageCompression(originalFile);
+
+          // B. GPS EXTRACTION
           setStatusText("Checking Photo GPS..."); 
           const meta = await exifr.gps(file);
           const timestamp = await exifr.parse(file, ['DateTimeOriginal']);
