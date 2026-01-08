@@ -148,6 +148,7 @@ export default function EmployeeDashboard() {
     setUser(savedUser);
 
     const verifyStatus = async () => {
+      setIsCheckingStatus(true); // Keep screen locked until check is finished
       try {
         const res = await fetch(`https://gk-backend-two.vercel.app/api/check-active-trip/${savedUser.id}`);
         const data = await res.json();
@@ -164,7 +165,8 @@ export default function EmployeeDashboard() {
         const savedTrip = localStorage.getItem('activeTripId');
         if (savedTrip) setActiveTripId(savedTrip);
       } finally {
-        setIsCheckingStatus(false);
+        // Small delay to ensure state updates before removing loading screen
+        setTimeout(() => setIsCheckingStatus(false), 500);
       }
     };
 
@@ -186,9 +188,10 @@ export default function EmployeeDashboard() {
 
   const handleImageCompression = async (file: File) => {
     const options = {
-      maxSizeMB: 0.8, 
-      maxWidthOrHeight: 1280,
+      maxSizeMB: 0.5, // Reduced for mobile performance and server limits
+      maxWidthOrHeight: 1024, // Reduced resolution for faster upload
       useWebWorker: true,
+      initialQuality: 0.7 
     };
     try {
       const compressedFile = await imageCompression(file, options);
@@ -238,7 +241,7 @@ export default function EmployeeDashboard() {
             } else {
               resolve(file);
             }
-          }, file.type, 0.95); 
+          }, file.type, 0.8); // Slightly lower quality for smaller file size
         };
       };
     });
@@ -312,7 +315,8 @@ export default function EmployeeDashboard() {
           }
 
           try {
-const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${finalLat}&lon=${finalLng}&accept-language=en`);            const geoData = await geoRes.json();
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${finalLat}&lon=${finalLng}&accept-language=en`);
+            const geoData = await geoRes.json();
             addressLabel = geoData.display_name || `Lat: ${finalLat}, Lng: ${finalLng}`;
           } catch (e) {
             addressLabel = `Lat: ${finalLat}, Lng: ${finalLng}`;
@@ -383,8 +387,13 @@ const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=j
   };
 
   if (!user || isCheckingStatus) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 font-bold text-slate-500 uppercase tracking-widest text-xs">
-      {t.verifying}
+    <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
+            <div className="font-bold text-slate-500 uppercase tracking-widest text-xs">
+              {t.verifying}
+            </div>
+        </div>
     </div>
   );
 
