@@ -35,7 +35,8 @@ export default function LoginPage() {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
+      // Safely parse JSON to avoid client-side crash if backend sends non-JSON error
+      const data = await res.json().catch(() => ({ message: "Server error: Invalid response format" }));
 
       if (res.ok) {
         // Handle Remember Me logic
@@ -56,7 +57,8 @@ export default function LoginPage() {
         alert(data.message || "Invalid Login Credentials");
       }
     } catch (err) {
-      alert("Cannot connect to Backend at 192.168.31.247. Is your server.js running?");
+      // Updated error message to reflect Cloud Backend instead of Local IP
+      alert("Cannot connect to Backend at gk-backend-two.vercel.app. Please check your internet connection.");
     } finally {
       setLoading(false);
     }
