@@ -2,12 +2,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import * as XLSX from 'xlsx';
+import imageCompression from 'browser-image-compression';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://gk-backend-two.vercel.app";
 
 export default function AdminDashboard() {
-const [trips, setTrips] = useState<any[]>([]); 
+  const [trips, setTrips] = useState<any[]>([]); 
   const [parties, setParties] = useState<any[]>([]); 
-  const [reminders, setReminders] = useState<any[]>([]);  const [search, setSearch] = useState("");
+  const [reminders, setReminders] = useState<any[]>([]);  
+  const [search, setSearch] = useState("");
   const [partySearch, setPartySearch] = useState(""); 
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -26,6 +29,21 @@ const [trips, setTrips] = useState<any[]>([]);
 
   const router = useRouter();
 
+  // New Image Compression Function
+  const handleImageUpload = async (file: File) => {
+    const options = {
+      maxSizeMB: 0.8,
+      maxWidthOrHeight: 1280,
+      useWebWorker: true
+    };
+    try {
+      return await imageCompression(file, options);
+    } catch (error) {
+      console.error("Compression Error:", error);
+      return file; 
+    }
+  };
+
   const sendWhatsAppReminder = (party: any) => {
     const balance = Number(party.total_amount) - Number(party.advance_paid);
     const message = `*Ganesh Enterprises Reminder*%0A%0AHello *${party.party_name}*,%0AThis is a friendly reminder regarding your pending balance of *₹${balance}*. Please let us know when you can clear the payment.%0A%0AThank you!`;
@@ -34,12 +52,10 @@ const [trips, setTrips] = useState<any[]>([]);
   };
 
   const fetchTrips = () => {
-    // Added safety check for localStorage parsing
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     fetch(`${API_URL}/api/admin/trips`)
       .then(res => res.json())
       .then(data => {
-        // Ensure data is an array before filtering
         const tripsData = Array.isArray(data) ? data : [];
         if (user.role === 'employee') {
           const myTrips = tripsData.filter((t: any) => t.full_name === user.full_name);
