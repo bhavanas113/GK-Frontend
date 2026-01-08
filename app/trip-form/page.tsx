@@ -20,12 +20,12 @@ const translations = {
     officeReturnSub: "Fill Expenses & Trip Closure",
     running: "Currently Running...",
     waiting: "Waiting to start",
-    loadingEntry: "🚛 Loading Entry",
+    loadingEntry: "🚛 LOADING ENTRY",
     expenseEntry: "💰 Expense Entry",
-    cancel: "← Cancel",
+    cancel: "← CANCEL",
     vehicleNo: "Vehicle Number",
-    from: "Loading From",
-    to: "Unloading To",
+    from: "LOADING FROM",
+    to: "UNLOADING TO",
     material: "Material Name",
     partyName: "Party Name",
     totalKm: "Total KM",
@@ -312,8 +312,7 @@ export default function EmployeeDashboard() {
           }
 
           try {
-            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${finalLat}&lon=${finalLng}`);
-            const geoData = await geoRes.json();
+const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${finalLat}&lon=${finalLng}&accept-language=en`);            const geoData = await geoRes.json();
             addressLabel = geoData.display_name || `Lat: ${finalLat}, Lng: ${finalLng}`;
           } catch (e) {
             addressLabel = `Lat: ${finalLat}, Lng: ${finalLng}`;
@@ -394,13 +393,13 @@ export default function EmployeeDashboard() {
       
       {showSettingsHelper && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[1001] flex items-center justify-center p-6 text-center">
-           <div className="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl">
-              <div className="text-4xl mb-4">📍</div>
-              <h2 className="text-xl font-black text-slate-900 uppercase italic">{t.gpsBlocked}</h2>
-              <button onClick={() => window.location.reload()} className="mt-8 w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest">
-                {t.refresh}
-              </button>
-           </div>
+            <div className="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl">
+               <div className="text-4xl mb-4">📍</div>
+               <h2 className="text-xl font-black text-slate-900 uppercase italic">{t.gpsBlocked}</h2>
+               <button onClick={() => window.location.reload()} className="mt-8 w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest">
+                 {t.refresh}
+               </button>
+            </div>
         </div>
       )}
 
@@ -485,7 +484,8 @@ export default function EmployeeDashboard() {
                     <input name="vehicleNo" placeholder="MH09CP9345" required className="w-full p-4 border border-slate-100 rounded-2xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-orange-400 outline-none text-base font-bold uppercase" />
                   </div>
                   
-                  <div className="space-y-4">
+                  {/* Updated Side-by-Side Layout */}
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-[10px] font-black text-slate-400 uppercase ml-2">{t.from}</label>
                       <input 
