@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import exifr from 'exifr';
-import imageCompression from 'browser-image-compression'; // Added compression library
+import imageCompression from 'browser-image-compression'; 
 
 // --- TRANSLATIONS ---
 const translations = {
@@ -24,8 +24,8 @@ const translations = {
     expenseEntry: "💰 Expense Entry",
     cancel: "← Cancel",
     vehicleNo: "Vehicle Number",
-    from: "From (State/Village)",
-    to: "To (State/Village)",
+    from: "Loading From",
+    to: "Unloading To",
     material: "Material Name",
     partyName: "Party Name",
     totalKm: "Total KM",
@@ -62,8 +62,8 @@ const translations = {
     expenseEntry: "💰 खर्च एंट्री",
     cancel: "← रद्द करें",
     vehicleNo: "गाड़ी नंबर",
-    from: "कहाँ से (राज्य/गाँव)",
-    to: "कहाँ तक (राज्य/गाँव)",
+    from: "कहाँ से लोड किया",
+    to: "कहाँ खाली होगा",
     material: "माल का नाम",
     partyName: "पार्टी का नाम",
     totalKm: "कुल किलोमीटर",
@@ -100,8 +100,8 @@ const translations = {
     expenseEntry: "💰 खर्चाची एन्ट्री",
     cancel: "← रद्द करा",
     vehicleNo: "गाडी नंबर",
-    from: "कोठून (राज्य/गाव)",
-    to: "कोठे (राज्य/गाव)",
+    from: "कोठून भरले (Loading)",
+    to: "कोठे खाली करणार (Unloading)",
     material: "मालाचे नाव",
     partyName: "पार्टीचे नाव",
     totalKm: "एकूण किलोमीटर",
@@ -123,15 +123,6 @@ const translations = {
   }
 };
 
-// --- LOCATION DATA ---
-const locationData: Record<string, string[]> = {
-  "Maharashtra": ["Pune", "Mumbai", "Nashik", "Nagpur", "Aurangabad", "Kolhapur", "Sangli", "Satara", "Solapur", "Jalgaon", "Ahmednagar"],
-  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Gandhinagar"],
-  "Karnataka": ["Bangalore", "Mysore", "Hubli", "Belgaum", "Mangalore", "Gulbarga"],
-  "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Bikaner", "Ajmer"],
-  "Madhya Pradesh": ["Indore", "Bhopal", "Gwalior", "Jabalpur", "Ujjain"]
-};
-
 export default function EmployeeDashboard() {
   const [user, setUser] = useState<any>(null);
   const [view, setView] = useState<'menu' | 'loading' | 'expenses'>('menu');
@@ -142,11 +133,6 @@ export default function EmployeeDashboard() {
   const [showSettingsHelper, setShowSettingsHelper] = useState(false);
   const [lang, setLang] = useState<'en' | 'hi' | 'mr'>('en');
 
-  const [fromState, setFromState] = useState("");
-  const [toState, setToState] = useState("");
-  const [fromVillage, setFromVillage] = useState("");
-  const [toVillage, setToVillage] = useState("");
-  
   const router = useRouter();
   const t = translations[lang];
 
@@ -198,10 +184,9 @@ export default function EmployeeDashboard() {
     }
   };
 
-  // Function to compress image
   const handleImageCompression = async (file: File) => {
     const options = {
-      maxSizeMB: 0.8, // Max size 800KB
+      maxSizeMB: 0.8, 
       maxWidthOrHeight: 1280,
       useWebWorker: true,
     };
@@ -262,7 +247,6 @@ export default function EmployeeDashboard() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 1. Vehicle Number Validation
     if (view === 'loading') {
         const vNo = (e.currentTarget.elements.namedItem('vehicleNo') as HTMLInputElement).value;
         const vRegex = /^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/;
@@ -272,7 +256,6 @@ export default function EmployeeDashboard() {
         }
     }
 
-    // 2. Mobile Number Validation
     if (view === 'expenses') {
         const mobile = (e.currentTarget.elements.namedItem('party_number') as HTMLInputElement).value;
         const mobileRegex = /^[0-9]{10}$/;
@@ -285,11 +268,6 @@ export default function EmployeeDashboard() {
     setLoading(true);
     setStatusText(t.saving); 
     const formData = new FormData(e.currentTarget);
-
-    if (view === 'loading') {
-      formData.append('loading', `${fromState} / ${fromVillage}`);
-      formData.append('unloading', `${toState} / ${toVillage}`);
-    }
 
     const today = new Date().toISOString().split('T')[0];
     if (view === 'loading') {
@@ -309,11 +287,9 @@ export default function EmployeeDashboard() {
 
       if (originalFile) {
         try {
-          // A. COMPRESSION STEP
           setStatusText("Optimizing Image...");
           const file = await handleImageCompression(originalFile);
 
-          // B. GPS EXTRACTION
           setStatusText("Checking Photo GPS..."); 
           const meta = await exifr.gps(file);
           const timestamp = await exifr.parse(file, ['DateTimeOriginal']);
@@ -509,67 +485,26 @@ export default function EmployeeDashboard() {
                     <input name="vehicleNo" placeholder="MH09CP9345" required className="w-full p-4 border border-slate-100 rounded-2xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-orange-400 outline-none text-base font-bold uppercase" />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="space-y-4">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-slate-400 uppercase">State (From)</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase ml-2">{t.from}</label>
                       <input 
-                        list="states-list" 
-                        value={fromState}
-                        onChange={(e) => { setFromState(e.target.value); setFromVillage(""); }}
-                        placeholder="State" 
+                        name="loading" 
+                        placeholder="e.g. Pune, MH" 
                         required 
-                        className="w-full p-3 border border-slate-200 rounded-xl bg-white text-xs font-bold" 
+                        className="w-full p-4 border border-slate-100 rounded-2xl bg-slate-50 focus:bg-white outline-none text-base font-bold" 
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black text-slate-400 uppercase">Village (From)</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase ml-2">{t.to}</label>
                       <input 
-                        list="from-villages" 
-                        value={fromVillage}
-                        onChange={(e) => setFromVillage(e.target.value)}
-                        disabled={!fromState}
-                        placeholder={fromState ? "Village" : "Select State"} 
+                        name="unloading" 
+                        placeholder="e.g. Surat, GJ" 
                         required 
-                        className="w-full p-3 border border-slate-200 rounded-xl bg-white text-xs font-bold disabled:opacity-50" 
+                        className="w-full p-4 border border-slate-100 rounded-2xl bg-slate-50 focus:bg-white outline-none text-base font-bold" 
                       />
-                      <datalist id="from-villages">
-                        {(locationData[fromState] || []).map(v => <option key={v} value={v} />)}
-                      </datalist>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-slate-400 uppercase">State (To)</label>
-                      <input 
-                        list="states-list" 
-                        value={toState}
-                        onChange={(e) => { setToState(e.target.value); setToVillage(""); }}
-                        placeholder="State" 
-                        required 
-                        className="w-full p-3 border border-slate-200 rounded-xl bg-white text-xs font-bold" 
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-slate-400 uppercase">Village (To)</label>
-                      <input 
-                        list="to-villages" 
-                        value={toVillage}
-                        onChange={(e) => setToVillage(e.target.value)}
-                        disabled={!toState}
-                        placeholder={toState ? "Village" : "Select State"} 
-                        required 
-                        className="w-full p-3 border border-slate-200 rounded-xl bg-white text-xs font-bold disabled:opacity-50" 
-                      />
-                      <datalist id="to-villages">
-                        {(locationData[toState] || []).map(v => <option key={v} value={v} />)}
-                      </datalist>
-                    </div>
-                  </div>
-
-                  <datalist id="states-list">
-                    {Object.keys(locationData).map(st => <option key={st} value={st} />)}
-                  </datalist>
 
                   <input name="material" placeholder={t.material} required className="w-full p-4 border border-slate-100 rounded-2xl bg-slate-50 font-bold" />
                   <input name="partyName" placeholder={t.partyName} className="w-full p-4 border border-slate-100 rounded-2xl bg-slate-50 font-bold" />
