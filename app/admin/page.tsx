@@ -35,37 +35,44 @@ export default function AdminDashboard() {
   };
 
   const fetchTrips = () => {
+    // Added safety check for localStorage parsing
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     fetch(`${API_URL}/api/admin/trips`)
       .then(res => res.json())
       .then(data => {
+        // Ensure data is an array before filtering
+        const tripsData = Array.isArray(data) ? data : [];
         if (user.role === 'employee') {
-          const myTrips = data.filter((t: any) => t.full_name === user.full_name);
+          const myTrips = tripsData.filter((t: any) => t.full_name === user.full_name);
           setTrips(myTrips);
         } else {
-          setTrips(data);
+          setTrips(tripsData);
         }
         setLoading(false);
       })
-      .catch(err => console.error("Error:", err));
+      .catch(err => {
+        console.error("Error:", err);
+        setLoading(false);
+      });
   }
 
   const fetchPartiesList = () => {
     fetch(`${API_URL}/api/admin/parties-all`)    
      .then(res => res.json())
-      .then(data => setParties(data))
+      .then(data => setParties(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching parties:", err));
   };
 
   const fetchReminders = () => {
-   fetch(`${API_URL}/api/admin/reminders`)     
+    fetch(`${API_URL}/api/admin/reminders`)     
       .then(res => res.json())
-      .then(data => setReminders(data))
+      .then(data => setReminders(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching reminders:", err));
   };
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : {};
     if (!user || Object.keys(user).length === 0 || (user.role !== 'admin' && user.role !== 'employee')) {
       router.push('/login');
     } else {
@@ -91,7 +98,8 @@ export default function AdminDashboard() {
           } else {
             setPartyHistory([]);
           }
-        });
+        })
+        .catch(err => console.error("Error fetching party details:", err));
     }
   }, [partyData.mobile]);
 
@@ -200,7 +208,8 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="p-10 text-center font-bold text-slate-400 uppercase text-xs tracking-widest">Loading Dashboard Data...</div>;
 
-  const isAdmin = JSON.parse(localStorage.getItem('user') || '{}').role === 'admin';
+  const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = userObj.role === 'admin';
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col md:flex-row font-sans">
@@ -595,7 +604,7 @@ export default function AdminDashboard() {
     padding-top: 0 !important; /* Forces content to the very top */
     margin-top: 0 !important;
   }
-}     
+}      
       `}</style>
     </div>
   );
